@@ -170,7 +170,7 @@ func (rb *Bitmap) ToArray() []uint64 {
 		hs := uint64(rb.highlowcontainer.getKeyAtIndex(pos)) << 32
 		c := rb.highlowcontainer.getContainerAtIndex(pos)
 		pos++
-		c.FillLeastSignificant32bits(array, pos2, hs)
+		c.ManyIterator().NextMany64(hs, array[pos2:])
 		pos2 += c.GetCardinality()
 	}
 	return array
@@ -196,7 +196,7 @@ func (rb *Bitmap) String() string {
 	counter := 0
 	if i.HasNext() {
 		counter = counter + 1
-		buffer.WriteString(strconv.FormatInt(int64(i.Next()), 10))
+		buffer.WriteString(strconv.FormatUint(uint64(i.Next()), 10))
 	}
 	for i.HasNext() {
 		buffer.WriteString(",")
@@ -206,7 +206,7 @@ func (rb *Bitmap) String() string {
 			buffer.WriteString("...")
 			break
 		}
-		buffer.WriteString(strconv.FormatInt(int64(i.Next()), 10))
+		buffer.WriteString(strconv.FormatUint(uint64(i.Next()), 10))
 	}
 	buffer.WriteString("}")
 	return buffer.String()
