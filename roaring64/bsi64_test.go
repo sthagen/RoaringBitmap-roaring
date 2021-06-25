@@ -1,10 +1,13 @@
 package roaring64
 
 import (
+	_ "fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
+	"math/rand"
 	"testing"
+	"time"
 )
 
 func TestSetAndGet(t *testing.T) {
@@ -26,6 +29,67 @@ func setup() *BSI {
 	for i := 0; i < int(bsi.MaxValue); i++ {
 		bsi.SetValue(uint64(i), int64(i))
 	}
+	return bsi
+}
+
+func setupNegativeBoundary() *BSI {
+
+	bsi := NewBSI(5, -5)
+	// Setup values
+	for i := int(bsi.MinValue); i <= int(bsi.MaxValue); i++ {
+		bsi.SetValue(uint64(i), int64(i))
+	}
+	return bsi
+}
+
+func setupAllNegative() *BSI {
+	bsi := NewBSI(-1, -100)
+	// Setup values
+	for i := int(bsi.MinValue); i <= int(bsi.MaxValue); i++ {
+		bsi.SetValue(uint64(i), int64(i))
+	}
+	return bsi
+}
+
+func setupAutoSizeNegativeBoundary() *BSI {
+	bsi := NewDefaultBSI()
+	// Setup values
+	for i := int(-5); i <= int(5); i++ {
+		bsi.SetValue(uint64(i), int64(i))
+	}
+	return bsi
+}
+
+func setupRandom() *BSI {
+	bsi := NewBSI(99, -1)
+	rg := rand.New(rand.NewSource(time.Now().UnixNano()))
+	// Setup values
+	for i := 0; bsi.GetExistenceBitmap().GetCardinality() < 100; {
+		rv := rg.Int63n(bsi.MaxValue) - 50
+		_, ok := bsi.GetValue(uint64(i))
+		if ok {
+			continue
+		}
+		bsi.SetValue(uint64(i), rv)
+		i++
+	}
+	batch := make([]uint64, 100)
+	iter := bsi.GetExistenceBitmap().ManyIterator()
+	iter.NextMany(batch)
+	var min, max int64
+	min = Max64BitSigned
+	max = Min64BitSigned
+	for i := 0; i < len(batch); i++ {
+		v, _ := bsi.GetValue(batch[i])
+		if v > max {
+			max = v
+		}
+		if v < min {
+			min = v
+		}
+	}
+	bsi.MinValue = min
+	bsi.MaxValue = max
 	return bsi
 }
 
@@ -291,4 +355,79 @@ func TestTransposeWithCounts(t *testing.T) {
 	a, ok := transposed.GetValue(uint64(50))
 	assert.True(t, ok)
 	assert.Equal(t, int64(2), a)
+}
+
+func TestRangeAllNegative(t *testing.T) {
+	bsi := setupAllNegative()
+	assert.Equal(t, uint64(100), bsi.GetCardinality())
+	set := bsi.CompareValue(0, RANGE, -55, -45, nil)
+	assert.Equal(t, uint64(11), set.GetCardinality())
+
+	i := set.Iterator()
+	for i.HasNext() {
+		val, _ := bsi.GetValue(uint64(i.Next()))
+		assert.GreaterOrEqual(t, val, int64(-55))
+		assert.LessOrEqual(t, val, int64(-45))
+	}
+}
+
+func TestSumWithNegative(t *testing.T) {
+	bsi := setupNegativeBoundary()
+	assert.Equal(t, uint64(11), bsi.GetCardinality())
+	sum, cnt := bsi.Sum(bsi.GetExistenceBitmap())
+	assert.Equal(t, uint64(11), cnt)
+	assert.Equal(t, int64(0), sum)
+}
+
+func TestGEWithNegative(t *testing.T) {
+	bsi := setupNegativeBoundary()
+	assert.Equal(t, uint64(11), bsi.GetCardinality())
+	set := bsi.CompareValue(0, GE, 3, 0, nil)
+	assert.Equal(t, uint64(3), set.GetCardinality())
+	set = bsi.CompareValue(0, GE, -3, 0, nil)
+	assert.Equal(t, uint64(9), set.GetCardinality())
+}
+
+func TestLEWithNegative(t *testing.T) {
+	bsi := setupNegativeBoundary()
+	assert.Equal(t, uint64(11), bsi.GetCardinality())
+	set := bsi.CompareValue(0, LE, -3, 0, nil)
+	assert.Equal(t, uint64(3), set.GetCardinality())
+	set = bsi.CompareValue(0, LE, 3, 0, nil)
+	assert.Equal(t, uint64(9), set.GetCardinality())
+}
+
+func TestRangeWithNegative(t *testing.T) {
+	bsi := setupNegativeBoundary()
+	assert.Equal(t, uint64(11), bsi.GetCardinality())
+	set := bsi.CompareValue(0, RANGE, -3, 3, nil)
+	assert.Equal(t, uint64(7), set.GetCardinality())
+
+	i := set.Iterator()
+	for i.HasNext() {
+		val, _ := bsi.GetValue(uint64(i.Next()))
+		assert.GreaterOrEqual(t, val, int64(-3))
+		assert.LessOrEqual(t, val, int64(3))
+	}
+}
+
+func TestAutoSizeWithNegative(t *testing.T) {
+	bsi := setupAutoSizeNegativeBoundary()
+	assert.Equal(t, uint64(11), bsi.GetCardinality())
+	assert.Equal(t, 64, bsi.BitCount())
+	set := bsi.CompareValue(0, RANGE, -3, 3, nil)
+	assert.Equal(t, uint64(7), set.GetCardinality())
+
+	i := set.Iterator()
+	for i.HasNext() {
+		val, _ := bsi.GetValue(uint64(i.Next()))
+		assert.GreaterOrEqual(t, val, int64(-3))
+		assert.LessOrEqual(t, val, int64(3))
+	}
+}
+
+func TestMinMaxWithRandom(t *testing.T) {
+	bsi := setupRandom()
+	assert.Equal(t, bsi.MinValue, bsi.MinMax(0, MIN, bsi.GetExistenceBitmap()))
+	assert.Equal(t, bsi.MaxValue, bsi.MinMax(0, MAX, bsi.GetExistenceBitmap()))
 }
