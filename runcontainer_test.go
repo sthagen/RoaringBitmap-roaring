@@ -3,7 +3,7 @@ package roaring
 import (
 	"fmt"
 	"math/rand"
-	"sort"
+	"slices"
 	"strings"
 	"testing"
 
@@ -495,7 +495,7 @@ func TestRleRandomIntersection16(t *testing.T) {
 				}
 
 				// print a; very likely it has dups
-				sort.Sort(uint16Slice(a))
+				slices.Sort(a)
 				stringA := ""
 				for i := range a {
 					stringA += fmt.Sprintf("%v, ", a[i])
@@ -591,7 +591,7 @@ func TestRleRandomUnion16(t *testing.T) {
 
 				union := arle.union(brle)
 				un := union.AsSlice()
-				sort.Sort(uint16Slice(un))
+				slices.Sort(un)
 
 				for kk, v := range un {
 					_ = kk
@@ -1261,7 +1261,7 @@ func TestRle16RemoveApi015(t *testing.T) {
 }
 
 func showArray16(a []uint16, name string) {
-	sort.Sort(uint16Slice(a))
+	slices.Sort(a)
 	stringA := ""
 	for i := range a {
 		stringA += fmt.Sprintf("%v, ", a[i])

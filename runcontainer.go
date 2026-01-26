@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import (
 	"errors"
 	"fmt"
-	"sort"
+	"slices"
 )
 
 // runContainer16 does run-length encoding of sets of
@@ -113,18 +113,6 @@ func (rc *runContainer16) String() string {
 	return `runContainer16{` + is + `}`
 }
 
-// uint16Slice is a sort.Sort convenience method
-type uint16Slice []uint16
-
-// Len returns the length of p.
-func (p uint16Slice) Len() int { return len(p) }
-
-// Less returns p[i] < p[j]
-func (p uint16Slice) Less(i, j int) bool { return p[i] < p[j] }
-
-// Swap swaps elements i and j.
-func (p uint16Slice) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
-
 // addHelper helps build a runContainer16.
 type addHelper16 struct {
 	runstart      uint16
@@ -183,7 +171,7 @@ func newRunContainer16FromVals(alreadySorted bool, vals ...uint16) *runContainer
 	ah := addHelper16{rc: rc}
 
 	if !alreadySorted {
-		sort.Sort(uint16Slice(vals))
+		slices.Sort(vals)
 	}
 	n := len(vals)
 	var cur, prev uint16
