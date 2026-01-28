@@ -2,13 +2,14 @@ package roaring64
 
 import (
 	"bytes"
+	"cmp"
 	"encoding/binary"
 	"fmt"
 	"io"
 	"math/big"
 	"math/rand"
 	"os"
-	"sort"
+	"slices"
 	"testing"
 	"time"
 
@@ -712,9 +713,7 @@ func testBsiRoundTrip(t *testing.T, pairs []bsiColValPair) {
 	it := bsi.GetExistenceBitmap().Iterator()
 	// The column ordering needs to match the one given by the iterator. This reorders the caller's
 	// slice.
-	sort.Slice(pairs, func(i, j int) bool {
-		return pairs[i].col < pairs[j].col
-	})
+	slices.SortFunc(pairs, func(a, b bsiColValPair) int { return cmp.Compare(a.col, b.col) })
 	for _, pair := range pairs {
 		if !it.HasNext() {
 			t.Fatalf("expected more columns: %v", pair.col)
