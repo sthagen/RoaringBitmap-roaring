@@ -1067,6 +1067,35 @@ func BenchmarkXorLopsided(b *testing.B) {
 	}
 }
 
+// BenchmarkXorDense benchmarks in-place Xor (ixor) on dense data
+// where containers are bitmapContainers (>4096 values per 16-bit chunk).
+// This is where in-place mutation of the bitmap[]uint64 slice should shine.
+func BenchmarkXorDense(b *testing.B) {
+	b.StopTimer()
+	r := rand.New(rand.NewSource(0))
+	// 50 chunks, each with ~10000 values → bitmapContainers (threshold is 4096)
+	numChunks := 50
+	valsPerChunk := 10000
+	s := NewBitmap()
+	for chunk := 0; chunk < numChunks; chunk++ {
+		base := uint32(chunk) * 65536
+		for i := 0; i < valsPerChunk; i++ {
+			s.Add(base + uint32(r.Intn(65536)))
+		}
+	}
+	x2 := NewBitmap()
+	for chunk := 0; chunk < numChunks; chunk++ {
+		base := uint32(chunk) * 65536
+		for i := 0; i < valsPerChunk; i++ {
+			x2.Add(base + uint32(r.Intn(65536)))
+		}
+	}
+	b.StartTimer()
+	for j := 0; j < b.N; j++ {
+		s.Xor(x2)
+	}
+}
+
 func BenchmarkBitmapReuseWithoutClear(b *testing.B) {
 	for j := 0; j < b.N; j++ {
 		s := NewBitmap()
