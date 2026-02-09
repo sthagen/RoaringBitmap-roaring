@@ -945,7 +945,7 @@ func (bc *bitmapContainer) ixorBitmap(value2 *bitmapContainer) container {
 		}
 		bc.cardinality = newCardinality
 		return bc
-	} 
+	}
 	ac := newArrayContainerSize(newCardinality)
 	fillArrayXOR(ac.content, bc.bitmap, value2.bitmap)
 	ac.content = ac.content[:newCardinality]
