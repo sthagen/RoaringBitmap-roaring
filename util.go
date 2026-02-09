@@ -124,7 +124,7 @@ func combineLoHi16(lob uint16, hob uint16) uint32 {
 }
 
 func combineLoHi32(lob uint32, hob uint32) uint32 {
-	return uint32(lob) | (hob << 16)
+	return lob | (hob << 16)
 }
 
 const maxLowBit = 0xFFFF

@@ -139,7 +139,7 @@ func TestRangeBig(t *testing.T) {
 	for i := 0; i <= 100; i++ {
 		t := time.Now()
 		newTime := t.AddDate(1000, 0, 0) // Add 1000 years
-		secs := int64(newTime.UnixMilli() / 1000)
+		secs := newTime.UnixMilli() / 1000
 		nano := int32(newTime.Nanosecond())
 		bigTime := secondsAndNanosToBigInt(secs, nano)
 		bsi.SetBigValue(uint64(i), bigTime)
@@ -153,8 +153,8 @@ func TestRangeBig(t *testing.T) {
 	i := set.Iterator()
 	for i.HasNext() {
 		v := i.Next()
-		assert.GreaterOrEqual(t, uint64(v), uint64(45))
-		assert.LessOrEqual(t, uint64(v), uint64(55))
+		assert.GreaterOrEqual(t, v, uint64(45))
+		assert.LessOrEqual(t, v, uint64(55))
 	}
 	assert.Equal(t, 67, bsi.BitCount())
 }
@@ -273,7 +273,7 @@ func TestLT(t *testing.T) {
 	i := lt.Iterator()
 	for i.HasNext() {
 		v := i.Next()
-		assert.Less(t, uint64(v), uint64(50))
+		assert.Less(t, v, uint64(50))
 	}
 }
 
@@ -286,7 +286,7 @@ func TestGT(t *testing.T) {
 	i := gt.Iterator()
 	for i.HasNext() {
 		v := i.Next()
-		assert.Greater(t, uint64(v), uint64(50))
+		assert.Greater(t, v, uint64(50))
 	}
 }
 
@@ -316,7 +316,7 @@ func TestGE(t *testing.T) {
 	i := ge.Iterator()
 	for i.HasNext() {
 		v := i.Next()
-		assert.GreaterOrEqual(t, uint64(v), uint64(50))
+		assert.GreaterOrEqual(t, v, uint64(50))
 	}
 }
 
@@ -329,7 +329,7 @@ func TestLE(t *testing.T) {
 	i := le.Iterator()
 	for i.HasNext() {
 		v := i.Next()
-		assert.LessOrEqual(t, uint64(v), uint64(50))
+		assert.LessOrEqual(t, v, uint64(50))
 	}
 }
 
@@ -342,8 +342,8 @@ func TestRangeSimple(t *testing.T) {
 	i := set.Iterator()
 	for i.HasNext() {
 		v := i.Next()
-		assert.GreaterOrEqual(t, uint64(v), uint64(45))
-		assert.LessOrEqual(t, uint64(v), uint64(55))
+		assert.GreaterOrEqual(t, v, uint64(45))
+		assert.LessOrEqual(t, v, uint64(55))
 	}
 }
 
@@ -387,7 +387,7 @@ func TestTransposeSimple(t *testing.T) {
 	j := 0
 	for i.HasNext() {
 		v := i.Next()
-		assert.Equal(t, uint64(v), uint64(j))
+		assert.Equal(t, v, uint64(j))
 		j++
 	}
 }
@@ -555,7 +555,7 @@ func TestRangeAllNegative(t *testing.T) {
 
 	i := set.Iterator()
 	for i.HasNext() {
-		val, _ := bsi.GetValue(uint64(i.Next()))
+		val, _ := bsi.GetValue(i.Next())
 		assert.GreaterOrEqual(t, val, int64(-55))
 		assert.LessOrEqual(t, val, int64(-45))
 	}
@@ -595,7 +595,7 @@ func TestRangeWithNegative(t *testing.T) {
 
 	i := set.Iterator()
 	for i.HasNext() {
-		val, _ := bsi.GetValue(uint64(i.Next()))
+		val, _ := bsi.GetValue(i.Next())
 		assert.GreaterOrEqual(t, val, int64(-3))
 		assert.LessOrEqual(t, val, int64(3))
 	}
@@ -608,7 +608,7 @@ func TestAutoSizeWithNegative(t *testing.T) {
 
 	i := set.Iterator()
 	for i.HasNext() {
-		val, _ := bsi.GetValue(uint64(i.Next()))
+		val, _ := bsi.GetValue(i.Next())
 		assert.GreaterOrEqual(t, val, int64(-3))
 		assert.LessOrEqual(t, val, int64(3))
 	}
@@ -785,7 +785,7 @@ func TestRangeNilBig(t *testing.T) {
 	for i := 0; i <= 100; i++ {
 		t := time.Now()
 		newTime := t.AddDate(1000, 0, 0) // Add 1000 years
-		secs := int64(newTime.UnixMilli() / 1000)
+		secs := newTime.UnixMilli() / 1000
 		nano := int32(newTime.Nanosecond())
 		bigTime := secondsAndNanosToBigInt(secs, nano)
 		bsi.SetBigValue(uint64(i), bigTime)

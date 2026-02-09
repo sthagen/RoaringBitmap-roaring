@@ -126,7 +126,7 @@ func TestFrozenFormat(t *testing.T) {
 			if err != nil {
 				t.Fatalf("can't freeze %s: %s", ppath, err)
 			}
-			if int(frozenSize) != len(frozenBuf) {
+			if frozenSize != len(frozenBuf) {
 				t.Errorf("size for serializing %s differs from %s's size", ppath, fpath)
 			}
 			if !reflect.DeepEqual(wr.Bytes(), frozenBuf) {

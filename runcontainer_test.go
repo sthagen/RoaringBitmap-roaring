@@ -515,7 +515,7 @@ func TestRleRandomIntersection16(t *testing.T) {
 				// arle := newRunContainer16FromVals(false, a...)
 				// instead of the above line, create from array
 				// get better test coverage:
-				arr := newArrayContainerRange(int(first), int(second))
+				arr := newArrayContainerRange(first, second)
 				arle := newRunContainer16FromArray(arr)
 				arle.set(false, a...)
 
@@ -2749,7 +2749,7 @@ func getRandomSameThreeContainers(tr trial) (*arrayContainer, *runContainer16, *
 
 	draw := int(float64(n) * tr.percentFill)
 	for i := 0; i < draw; i++ {
-		r0 := int(samp.start) + rand.Intn(int(samp.runlen()))
+		r0 := int(samp.start) + rand.Intn(samp.runlen())
 		a = append(a, uint16(r0))
 		ma[r0] = true
 	}

@@ -148,7 +148,7 @@ func (b *BSI) GetValue(columnID uint64) (int64, bool) {
 			value |= (1 << uint64(i))
 		}
 	}
-	return int64(value), exists
+	return value, exists
 }
 
 type action func(t *task, batch []uint32, resultsChan chan *roaring.Bitmap, wg *sync.WaitGroup)
@@ -767,7 +767,7 @@ func batchEqual(e *task, batch []uint32, resultsChan chan *roaring.Bitmap,
 	for i := 0; i < len(batch); i++ {
 		cID := batch[i]
 		if value, ok := e.bsi.GetValue(uint64(cID)); ok {
-			if _, yes := e.values[int64(value)]; yes {
+			if _, yes := e.values[value]; yes {
 				results.Add(cID)
 			}
 		}

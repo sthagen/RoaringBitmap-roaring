@@ -105,5 +105,5 @@ func numberOfTrailingZeros(i uint64) int {
 		n -= 2
 		x = y
 	}
-	return int(n - int64(uint64(x<<1)>>63))
+	return int(n - int64(x<<1>>63))
 }

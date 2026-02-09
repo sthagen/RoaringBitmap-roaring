@@ -1133,7 +1133,7 @@ func (bc *bitmapContainer) NextSetBit(i uint) int {
 		return -1
 	}
 	w := bc.bitmap[x]
-	w = w >> uint(i%64)
+	w = w >> (i % 64)
 	if w != 0 {
 		return int(i) + countTrailingZeros(w)
 	}
@@ -1155,7 +1155,7 @@ func (bc *bitmapContainer) NextUnsetBit(i uint) int {
 		return int(i)
 	}
 	w := bc.bitmap[x]
-	w = w >> uint(i%64)
+	w = w >> (i % 64)
 	w = ^w
 	if w != 0 {
 		return int(i) + countTrailingZeros(w)
@@ -1192,7 +1192,7 @@ func (bc *bitmapContainer) uPrevSetBit(i uint) int {
 
 	b := i % 64
 
-	w = w << uint(63-b)
+	w = w << (63 - b)
 	if w != 0 {
 		return int(i) - countLeadingZeros(w)
 	}

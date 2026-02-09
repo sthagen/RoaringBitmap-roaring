@@ -11,9 +11,9 @@ func TestRoaringArray64AdvanceUntil(t *testing.T) {
 	low := uint64(1) << 32
 	mid := uint64(2) << 32
 	high := uint64(3) << 32
-	bitmap.AddRange(uint64(low)-1, uint64(low)+2)
-	bitmap.AddRange(uint64(mid)-1, uint64(mid)+2)
-	bitmap.AddRange(uint64(high)-1, uint64(high)+2)
+	bitmap.AddRange(low-1, low+2)
+	bitmap.AddRange(mid-1, mid+2)
+	bitmap.AddRange(high-1, high+2)
 
 	assert.Equal(t, 0, bitmap.highlowcontainer.advanceUntil(0, -1))
 	assert.Equal(t, 1, bitmap.highlowcontainer.advanceUntil(1, -1))
@@ -49,18 +49,18 @@ func TestCopies(t *testing.T) {
 			bitmap1.SetCopyOnWrite(test.cow1)
 			bitmap2.SetCopyOnWrite(test.cow2)
 
-			bitmap2.AddRange(uint64(r1)-1, uint64(r1)+2)
-			bitmap2.AddRange(uint64(r2)-1, uint64(r2)+2)
-			bitmap2.AddRange(uint64(r3)-1, uint64(r3)+2)
-			bitmap2.AddRange(uint64(r4)-1, uint64(r4)+2)
+			bitmap2.AddRange(r1-1, r1+2)
+			bitmap2.AddRange(r2-1, r2+2)
+			bitmap2.AddRange(r3-1, r3+2)
+			bitmap2.AddRange(r4-1, r4+2)
 
-			assert.False(t, bitmap1.Contains(uint64(r2)))
-			assert.False(t, bitmap1.Contains(uint64(r3)))
+			assert.False(t, bitmap1.Contains(r2))
+			assert.False(t, bitmap1.Contains(r3))
 			assert.Equal(t, 0, len(bitmap1.highlowcontainer.keys))
 			bitmap1.highlowcontainer.appendCopiesAfter(bitmap2.highlowcontainer, 0)
 			assert.Equal(t, 4, len(bitmap1.highlowcontainer.keys))
-			assert.True(t, bitmap1.Contains(uint64(r2)))
-			assert.True(t, bitmap1.Contains(uint64(r3)))
+			assert.True(t, bitmap1.Contains(r2))
+			assert.True(t, bitmap1.Contains(r3))
 
 			for idx1, c1 := range bitmap1.highlowcontainer.containers {
 				for idx2, c2 := range bitmap2.highlowcontainer.containers {
@@ -94,25 +94,25 @@ func TestCopies(t *testing.T) {
 			r2 := uint64(2) << 32
 			r3 := uint64(3) << 32
 			r4 := uint64(4) << 32
-			key := highbits(uint64(r4))
+			key := highbits(r4)
 
 			bitmap1 := New()
 			bitmap2 := New()
 			bitmap1.SetCopyOnWrite(test.cow1)
 			bitmap2.SetCopyOnWrite(test.cow2)
 
-			bitmap2.AddRange(uint64(r1)-1, uint64(r1)+2)
-			bitmap2.AddRange(uint64(r2)-1, uint64(r2)+2)
-			bitmap2.AddRange(uint64(r3)-1, uint64(r3)+2)
-			bitmap2.AddRange(uint64(r4)-1, uint64(r4)+2)
+			bitmap2.AddRange(r1-1, r1+2)
+			bitmap2.AddRange(r2-1, r2+2)
+			bitmap2.AddRange(r3-1, r3+2)
+			bitmap2.AddRange(r4-1, r4+2)
 
-			assert.False(t, bitmap1.Contains(uint64(r2)))
-			assert.False(t, bitmap1.Contains(uint64(r3)))
+			assert.False(t, bitmap1.Contains(r2))
+			assert.False(t, bitmap1.Contains(r3))
 			assert.Equal(t, 0, len(bitmap1.highlowcontainer.keys))
 			bitmap1.highlowcontainer.appendCopiesUntil(bitmap2.highlowcontainer, key)
 			assert.Equal(t, 4, len(bitmap1.highlowcontainer.keys))
-			assert.True(t, bitmap1.Contains(uint64(r2)))
-			assert.True(t, bitmap1.Contains(uint64(r3)))
+			assert.True(t, bitmap1.Contains(r2))
+			assert.True(t, bitmap1.Contains(r3))
 
 			for idx1, c1 := range bitmap1.highlowcontainer.containers {
 				for idx2, c2 := range bitmap2.highlowcontainer.containers {

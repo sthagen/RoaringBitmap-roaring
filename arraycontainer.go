@@ -969,7 +969,7 @@ func (ac *arrayContainer) resetTo(a container) {
 		x.fillArray(ac.content)
 
 	case *runContainer16:
-		card := int(x.getCardinality())
+		card := x.getCardinality()
 		ac.realloc(card)
 		cur := 0
 		for _, r := range x.iv {
