@@ -25,6 +25,13 @@ jobs:
           gofmt -s -l $(find . -name "*.go" -type f)
           exit 1
         fi
+    - name: Unconvert lint
+      run: |
+        if [ "$(go tool unconvert ./... | wc -l)" -gt 0 ]; then
+          echo "Unnecessary type conversions found. Please run 'make unconvert' and commit changes."
+          go tool unconvert ./...
+          exit 1
+        fi
     - name: Test
       run: |
         go build -tags appengine
