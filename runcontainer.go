@@ -2416,6 +2416,30 @@ func (rc *runContainer16) xor(a container) container {
 	panic("unsupported container type")
 }
 
+func (rc *runContainer16) ixor(a container) container {
+	switch c := a.(type) {
+	case *arrayContainer:
+		return rc.ixorArray(c)
+	case *bitmapContainer:
+		return rc.ixorBitmap(c)
+	case *runContainer16:
+		return rc.ixorRunContainer16(c)
+	}
+	panic("unsupported container type")
+}
+
+func (rc *runContainer16) ixorArray(value2 *arrayContainer) container {
+	return rc.toBitmapContainer().ixor(value2)
+}
+
+func (rc *runContainer16) ixorBitmap(value2 *bitmapContainer) container {
+	return value2.ixor(rc)
+}
+
+func (rc *runContainer16) ixorRunContainer16(value2 *runContainer16) container {
+	return rc.toBitmapContainer().ixor(value2.toBitmapContainer())
+}
+
 func (rc *runContainer16) iandNot(a container) container {
 	switch c := a.(type) {
 	case *arrayContainer:
