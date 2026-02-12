@@ -199,23 +199,23 @@ func TestFastAggregationsAndAny(t *testing.T) {
 	rb3 := NewBitmap()
 	// only one filter has some values
 	from := uint32(maxCapacity * 4)
-	for i := uint32(from); i < from+100; i += 2 {
+	for i := from; i < from+100; i += 2 {
 		rb1.Add(i)
 	}
 	// only base has values
 	from = maxCapacity * 7
-	for i := uint32(from); i < from+100; i += 2 {
+	for i := from; i < from+100; i += 2 {
 		base.Add(i)
 	}
 	// base and one of filters have same values
 	from = maxCapacity * 8
-	for i := uint32(from); i < from+100; i += 2 {
+	for i := from; i < from+100; i += 2 {
 		base.Add(i)
 		rb1.Add(i)
 	}
 	// small union
 	from = maxCapacity * 10
-	for i := uint32(from); i < from+1000; i += 10 {
+	for i := from; i < from+1000; i += 10 {
 		base.Add(i)
 		base.Add(i + i%3)
 
@@ -229,17 +229,17 @@ func TestFastAggregationsAndAny(t *testing.T) {
 	}
 	// run filters
 	from = maxCapacity * 10
-	for i := uint32(from); i < from+1000; i += 3 {
+	for i := from; i < from+1000; i += 3 {
 		base.Add(i)
 	}
-	for i := uint32(from); i < from+100; i++ {
+	for i := from; i < from+100; i++ {
 		rb1.Add(i)
 		rb2.Add(i + 333)
 		rb3.Add(i + 433)
 	}
 	// large union
 	from = maxCapacity * 16
-	for i := uint32(from); i < from+arrayDefaultMaxSize*10; i += 3 {
+	for i := from; i < from+arrayDefaultMaxSize*10; i += 3 {
 		base.Add(i)
 		base.Add(i + i%2 + 1)
 		rb2.Add(i)
@@ -248,7 +248,7 @@ func TestFastAggregationsAndAny(t *testing.T) {
 
 	// some extra base values
 	from = maxCapacity * 17
-	for i := uint32(from); i < from+1000; i++ {
+	for i := from; i < from+1000; i++ {
 		base.Add(i)
 	}
 

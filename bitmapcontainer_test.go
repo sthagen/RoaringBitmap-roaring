@@ -52,7 +52,7 @@ func TestBitmapContainerNumberOfRuns024(t *testing.T) {
 func TestBitmapcontainerAndCardinality(t *testing.T) {
 	for r := 0; r <= 65535; r++ {
 		c1 := newRunContainer16Range(0, uint16(r))
-		c2 := newBitmapContainerwithRange(0, int(r))
+		c2 := newBitmapContainerwithRange(0, r)
 
 		assert.Equal(t, r+1, c1.andCardinality(c2))
 	}

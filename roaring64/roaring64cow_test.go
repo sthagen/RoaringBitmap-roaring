@@ -270,7 +270,7 @@ func TestBitmapRankCOW(t *testing.T) {
 					rb1.Add(x)
 				}
 				for y := uint64(0); y <= N; y++ {
-					if rb1.Rank(y) != uint64((y+1+gap-1)/gap) {
+					if rb1.Rank(y) != (y+1+gap-1)/gap {
 						assert.Equal(t, (y+1+gap-1)/gap, rb1.Rank(y))
 					}
 				}
