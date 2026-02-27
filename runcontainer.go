@@ -1242,8 +1242,17 @@ func (ri *runIterator16) nextMany(hs uint32, buf []uint32) int {
 
 			// allows BCE
 			buf2 := buf[n : n+moreVals]
-			for i := range buf2 {
-				buf2[i] = base + uint32(i)
+			i := 0
+			for ; i+3 < len(buf2); i += 4 {
+				buf2[i] = base
+				buf2[i+1] = base + 1
+				buf2[i+2] = base + 2
+				buf2[i+3] = base + 3
+				base += 4
+			}
+			for ; i < len(buf2); i++ {
+				buf2[i] = base
+				base++
 			}
 
 			// update values
@@ -1283,8 +1292,17 @@ func (ri *runIterator16) nextMany64(hs uint64, buf []uint64) int {
 
 			// allows BCE
 			buf2 := buf[n : n+moreVals]
-			for i := range buf2 {
-				buf2[i] = base + uint64(i)
+			i := 0
+			for ; i+3 < len(buf2); i += 4 {
+				buf2[i] = base
+				buf2[i+1] = base + 1
+				buf2[i+2] = base + 2
+				buf2[i+3] = base + 3
+				base += 4
+			}
+			for ; i < len(buf2); i++ {
+				buf2[i] = base
+				base++
 			}
 
 			// update values
