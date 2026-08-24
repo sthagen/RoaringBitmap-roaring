@@ -1823,6 +1823,71 @@ func TestAndNot(t *testing.T) {
 	assert.True(t, correct.Equals(rr))
 }
 
+func andNotArrayRunInputs() (*Bitmap, *Bitmap) {
+	const highKey = uint64(1) << 32
+
+	left := NewBitmap()
+	for value := uint64(0); value < 32768; value += 16 {
+		left.Add(highKey + value)
+	}
+
+	right := NewBitmap()
+	right.AddRange(highKey+8192, highKey+24576)
+	right.RunOptimize()
+	return left, right
+}
+
+func andNotArrayArrayInputs() (*Bitmap, *Bitmap) {
+	const highKey = uint64(1) << 32
+
+	left := NewBitmap()
+	for value := uint64(0); value < 32768; value += 16 {
+		left.Add(highKey + value)
+	}
+
+	right := NewBitmap()
+	for value := uint64(8192); value < 10240; value++ {
+		right.Add(highKey + value)
+	}
+	return left, right
+}
+
+func TestAndNotArrayRun(t *testing.T) {
+	left, right := andNotArrayRunInputs()
+	assert.EqualValues(t, 1, left.Stats().ArrayContainers)
+	assert.EqualValues(t, 1, right.Stats().RunContainers)
+
+	leftBefore := left.Clone()
+	rightBefore := right.Clone()
+	result := AndNot(left, right)
+
+	const highKey = uint64(1) << 32
+	assert.EqualValues(t, 1024, result.GetCardinality())
+	assert.True(t, result.Contains(highKey))
+	assert.True(t, result.Contains(highKey+24576))
+	assert.False(t, result.Contains(highKey+8192))
+	assert.True(t, left.Equals(leftBefore))
+	assert.True(t, right.Equals(rightBefore))
+}
+
+func TestAndNotArrayArray(t *testing.T) {
+	left, right := andNotArrayArrayInputs()
+	assert.EqualValues(t, 1, left.Stats().ArrayContainers)
+	assert.EqualValues(t, 1, right.Stats().ArrayContainers)
+
+	leftBefore := left.Clone()
+	rightBefore := right.Clone()
+	result := AndNot(left, right)
+
+	const highKey = uint64(1) << 32
+	assert.EqualValues(t, 1920, result.GetCardinality())
+	assert.True(t, result.Contains(highKey))
+	assert.True(t, result.Contains(highKey+32752))
+	assert.False(t, result.Contains(highKey+8192))
+	assert.True(t, left.Equals(leftBefore))
+	assert.True(t, right.Equals(rightBefore))
+}
+
 func TestStats(t *testing.T) {
 	t.Run("Test Stats with empty bitmap", func(t *testing.T) {
 		expectedStats := roaring.Statistics{}
