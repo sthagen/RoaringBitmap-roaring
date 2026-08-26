@@ -639,3 +639,45 @@ func TestBitmapContainerFillLeastSignificant16bitsProperties(t *testing.T) {
 		runTest(t, vals, 0x55550000)
 	})
 }
+
+// TestBitmapContainerFillLeastSignificant16bitsVector checks the vector decoder
+// against the scalar one, including at the cardinality where they switch over.
+func TestBitmapContainerFillLeastSignificant16bitsVector(t *testing.T) {
+	if !useVectorFill {
+		t.Skip("no vector decoder on this platform")
+	}
+
+	r := rand.New(rand.NewSource(42))
+	for _, cardinality := range []int{
+		bitmapContainerVectorFillMinCardinality - 1,
+		bitmapContainerVectorFillMinCardinality,
+		bitmapContainerVectorFillMinCardinality + 1,
+		20000, 40000, 60000, 65535, 65536,
+	} {
+		bc := newBitmapContainer()
+		for bc.cardinality < cardinality {
+			bc.iadd(uint16(r.Intn(65536)))
+		}
+
+		const startIdx = 3
+		const sentinel = 0xDEADC0DE
+		want := make([]uint32, startIdx+cardinality+8)
+		got := make([]uint32, len(want))
+		for j := range want {
+			want[j] = sentinel
+			got[j] = sentinel
+		}
+
+		wantPos := fillLeastSignificant16bitsScalar(bc.bitmap, want, startIdx, 0xFFFF0000)
+		gotPos := bc.fillLeastSignificant16bits(got, startIdx, 0xFFFF0000)
+
+		if gotPos != wantPos {
+			t.Fatalf("cardinality %d: returned %d, want %d", cardinality, gotPos, wantPos)
+		}
+		for j := range want {
+			if got[j] != want[j] {
+				t.Fatalf("cardinality %d: at %d got %#x, want %#x", cardinality, j, got[j], want[j])
+			}
+		}
+	}
+}
