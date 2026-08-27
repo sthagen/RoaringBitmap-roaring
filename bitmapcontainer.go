@@ -294,13 +294,24 @@ func bitmapEquals(a, b []uint64) bool {
 	return true
 }
 
+// bitmapContainerVectorFillMinCardinality is where the vector decoder starts
+// paying back its fixed per-word cost. Measured break-even is near 2000; 4096
+// is the array-to-bitmap conversion point and leaves a comfortable margin.
+const bitmapContainerVectorFillMinCardinality = 4096
+
 func (bc *bitmapContainer) fillLeastSignificant16bits(x []uint32, i int, mask uint32) int {
-	// On amd64 this loop compiles to TZCNT/BLSR; the remaining headroom is
-	// vectorized decode (cf. CRoaring bitset_extract_setbits_avx2/avx512).
+	if useVectorFill && bc.cardinality >= bitmapContainerVectorFillMinCardinality {
+		return fillLeastSignificant16bitsVector(bc.bitmap, x, i, mask)
+	}
+	return fillLeastSignificant16bitsScalar(bc.bitmap, x, i, mask)
+}
+
+// fillLeastSignificant16bitsScalar compiles to a TZCNT/BLSR loop on amd64.
+func fillLeastSignificant16bitsScalar(bitmap []uint64, x []uint32, i int, mask uint32) int {
 	pos := i
 	base := mask
-	for k := 0; k < len(bc.bitmap); k++ {
-		bitset := bc.bitmap[k]
+	for k := 0; k < len(bitmap); k++ {
+		bitset := bitmap[k]
 		for bitset != 0 {
 			x[pos] = base + uint32(bits.TrailingZeros64(bitset))
 			pos++
