@@ -8,6 +8,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/RoaringBitmap/roaring/v2"
@@ -24,10 +25,20 @@ var portableFixtures = []string{
 	"64maphighvals.bin",
 }
 
+// testdataPath resolves a fixture relative to this source file: some CI jobs run
+// the compiled test binary from the repository root rather than from this
+// package's directory.
+func testdataPath(t *testing.T, name string) string {
+	t.Helper()
+	_, self, _, ok := runtime.Caller(0)
+	require.True(t, ok, "could not locate the test source file")
+	return filepath.Join(filepath.Dir(self), "testdata", name)
+}
+
 func TestPortableSerializationMatchesCRoaring(t *testing.T) {
 	for _, name := range portableFixtures {
 		t.Run(name, func(t *testing.T) {
-			reference, err := os.ReadFile(filepath.Join("testdata", name))
+			reference, err := os.ReadFile(testdataPath(t, name))
 			require.NoError(t, err)
 
 			bm := NewBitmap()
