@@ -135,3 +135,33 @@ func BenchmarkIteratorAlloc(b *testing.B) {
 		b.Fatalf("Cardinalities don't match: %d, %d", counter, expectedCardinality)
 	}
 }
+
+func BenchmarkAndNotArrayRun(b *testing.B) {
+	left, right := andNotArrayRunInputs()
+	if left.Stats().ArrayContainers != 1 || right.Stats().RunContainers != 1 {
+		b.Fatal("benchmark inputs do not use array/run containers")
+	}
+	if got := AndNot(left, right).GetCardinality(); got != 1024 {
+		b.Fatalf("unexpected result cardinality: got %d, want 1024", got)
+	}
+
+	b.ResetTimer()
+	for b.Loop() {
+		AndNot(left, right)
+	}
+}
+
+func BenchmarkAndNotArrayArray(b *testing.B) {
+	left, right := andNotArrayArrayInputs()
+	if left.Stats().ArrayContainers != 1 || right.Stats().ArrayContainers != 1 {
+		b.Fatal("benchmark inputs do not use array/array containers")
+	}
+	if got := AndNot(left, right).GetCardinality(); got != 1920 {
+		b.Fatalf("unexpected result cardinality: got %d, want 1920", got)
+	}
+
+	b.ResetTimer()
+	for b.Loop() {
+		AndNot(left, right)
+	}
+}
